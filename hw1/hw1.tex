@@ -1,0 +1,219 @@
+%!TEX program = xelatex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+\usepackage{xeCJK}
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage{amssymb}
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+\usepackage{enumerate}
+\usepackage{sectsty} % Allows customizing section commands
+\usepackage{indentfirst}
+\allsectionsfont{\normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{2em} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{Zhiyuan College, Shanghai Jiaotong University} \\ % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge CS389: Computational Complexity Homework I \\ % The assignment title
+\horrule{2pt} \\ % Thick bottom horizontal rule
+}
+
+\author{Zihao Ye} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+
+\maketitle % Print the title
+
+\section*{Problem 1.5}
+\subsection*{Proof}
+It's special form of \textbf{PROBLEM 1.6}, since only two tapes are available, we need to combine the contents of work tapes into one tape. Specifically, we use a tuple $(c_1, c_2, \cdots, c_k)$ in one cell to represent the information of tape heads in all tapes. The operations on tape $i$ should be implemented on the $i$-th dimension of the tuples in UTM.
+
+$O(T(n)\log T(n)) \subseteq O(T(n)^2)$, so we prove \textbf{PROBLEM 1.6} first.
+
+\section*{Problem 1.6}
+Section 1.7 has shown us a way to construct a UTM with log-amplification. To construct an oblivious UTM with log-amplification, we need to modify the rule a bit.
+
+Firstly, to make sure the UTM terminates at a exact time given the input length $n$, we need to attach a counter to the original TM. UTM terminates iff the counter reaches $T(n)$. Since $T(n)$ is a time-constructible function, it's possible to compute $T(n)$ first(don't start the counter first) given $1^n$, by adding some additional tapes to the original TM.
+
+Secondly, the UTM stated in section 1.7 is not obvious since it relies on the content of input. To make it oblivious, we do some modifications on the rules:
+
+\begin{enumerate}
+	\item Firstly, initialize all zones $L_i, R_i, i = 0,1,2,\cdots$ with $2^i$ non-buffer elements($|L_i| = 2^{i+1} = |R_i|$).
+	\item Suppose it's the $k$-th movement of the original TM, let $j$ be the most significant bit that has just turned from $0$ to $1$. Suppose $\delta(j) = \sum\limits_{i=0}^{j} \#L_i - 2^i$, Sweeping from $L_i$ to $R_i$ and readjust the number of elements in $L_j, L_{j-1}, \cdots, L_0, R_0, \cdots, R_{j-1}, R^{j}$ to $$2^j + \delta(j) \pm 1, 2^{j - 1}, \cdots , 2^{0}, 2^{0}, \cdots, 2^{j-1},  2^{j} - \delta(j) \mp 1$$	
+	In which $+$ or $-$ only depend on whether you want to move toward right or left, and they will be included in $\delta(j)$ after operation.
+
+	We use $OP(j)$ to denote this operation.
+\end{enumerate}
+
+It's obvious that during the execution, $|L_i| + |R_i| = 2^{i+1}$ is an invariant. Now we just need to prove that $\forall j, 2^{j} + \delta(j) \in [0, 2^{j+1}]$. 
+
+Since elements number in $L_i, L_{i-1}, \cdots, L_{0}, R_{0}, \cdots, R_i$ will be resized to $2^i, 2^{i-1}, \cdots, 2^{0}, 2^{0}, \cdots, 2^i$ once $OP(x), x>i$ has been operated, then $\delta(i) = 0$.
+
+The round gap between two nearst $OP(x), x > i$ (or from initialization to first $OP(x), x > i$) is $2^i$, thus $\delta(i)$ will never exceed $2^{i}$ or lower than $-2^{i}$. Thus for all $i$, $OP(i)$ is valid.
+
+Total time complexity is $\sum\limits_{i=0}^{\log(T(n))} (2\times 2^{i+2} - 1) \times \frac{T(n)}{2^{i+1}} = O(T(n)\log T(n))$.
+
+\section*{Problem 1.9}
+To simulate a RAM TM, we need two tapes: $t_1$ as memory, $t_2$ as output. Since the address is unbounded, we can't just save/load symbols at their address(finding the address requires a lot of time). 
+
+Whenever we need to write a symbol, save the address $\llcorner i \lrcorner$ and symbol $\sigma$ at the tail of $t_1$. If needed, we can add a divider. Thus our tape looks like this:
+
+$$\llcorner i_1 \lrcorner \sigma_1 \dag \llcorner i_2 \lrcorner \sigma_2 \dag \llcorner i_3 \lrcorner \sigma_3 \dag \cdots $$
+
+When we need to load a symbol at some address, look up this address in the tape(from the back forward). If the tape head encounters a zone with the address we need, output its symbol at $t_2$. Otherwise, output $0$ at $t_2$. Then reset the tape head.
+
+It takes at most $T(n)$ time to save/load, as we know there are no more than $T(n)$ access to RAM, thus we derive the total time complexity is $O(T(n)^2)$.
+
+\section*{Problem 1.13}
+\subsection*{(a)}
+$$\textrm{BIT}(n, i) = \textrm{DIVIDES}(p_i, n) $$
+\subsection*{(b)}
+$$\textrm{COMPARE}(n, m, i, j) = \forall x, (x < i) \vee (x > j) \vee \left(\textrm{BIT}(n, x) = \textrm{BIT}(m, x)\right) $$
+\subsection*{(c)}
+
+For convenience, assume $M$ is a single-tape TM(similarly hereinafter). Firstly, we encode every symbol in $M$'s alphabet$\Sigma$ as a binary string(from $(0\cdots0)_2$ to $\left(\left|\Sigma\right|\right)_2$). Then we need to encode every state of $M$ as a binary string(from $(0\cdots0)_2$ to $\left(|S| \right)_2$). Thus we derive the binary representation of a configuration of $M$ in the following way:
+$$\textrm{BR}(C) = \ddag c_1 \dag c_2, \cdots \dag c_l \ddag i \ddag s \ddag$$
+
+In which $l$ represents the ``useful'' length of the single tape(which means $c_l$ is not empty, and $\forall j > l, \textrm{empty}(c_j)$), $c_1, c_2, \cdots c_l$ represent the content of the cells. $i$ is the current position of tape head while $s$ is the current state.
+
+By encoding $\dag$ as $01$, $\ddag$ as $10$, $0$ as $00$, $1$ as $11$. We derive an unambiguous binary representation of the configuration.
+
+\subsection*{(d)}
+
+Let $C$ be the initial configuration of $M$ given input $x$, and let $\textrm{Len(s)}$ be the length of a binary string $s$, define $m$ as:
+$$ m = \prod_{i = 1}^{\textrm{Len}(\textrm{BR}(C))}p_i^{\textrm{BR}(C)_i} $$
+
+Then we can derive the INIT function:
+$$\textrm{INIT}_{M, x}(n) = \textrm{COMPARE}(n, m, 1, \textrm{Len}(\textrm{BR}(C))) $$
+
+\subsection*{(e)}
+We can construct a parser to parse any component of a binary string $s$, suppose $\textrm{Comp}(s, i)$ allow us to fetch the $i$-th component divided by $\ddag$ from the binary string representation $s$ of the configuration and transform them to the normal form($11$ to $1$, $00$ to $0$, according to the last process in \textbf{(c)}. But when $i = 1$, we don't need to do this since we still have to deal with another divider $\dag$).
+
+To finish $\textrm{HALT}$ function, we need to be able to decode the binary representation $s$ from $n$, which could defined as:
+
+$$s = \textrm{Bin}(n) = \textrm{BIT}(n, 1) \textrm{BIT}(n, 2) \cdots \textrm{BIT(n, k)}$$
+
+In which $k$ is the least number to satisfy that $\textrm{BIT}(n,1)\cdots \textrm{BIT(n, k)}$ contains $4$ dividers $\ddag$.
+
+Suppose $\textrm{Term}_M(i)$ returns whether the $i$-th state of $M$ is terminal state.
+$$\textrm{HALT}_M(n) = \textrm{Term}_M\left(\llcorner \textrm{Comp}(\textrm{Bin}(n),3) \lrcorner_2\right) $$
+
+\subsection*{(f)}
+Let $State(n)$ be the current state of the configuration correspond to the encoding $n$:
+$$\textrm{State}(n) = S\left(\llcorner \textrm{Comp}(\textrm{Bin}(n), 3) \lrcorner_2 \right) $$
+
+Let $Cont(n)$ be the content of the current cell of the configuration correspond to the encoding $n$:
+$$\textrm{Cont}(n) = \textrm{Comp}(\textrm{Bin}(n), 1)\left[\llcorner \textrm{Comp}(\textrm{Bin}(n), 2) \lrcorner_2\right] $$
+Then it is possible to construct the following three functions:
+
+\begin{description}
+	\item[$\textrm{Succ-State}(n, m)$:]
+$$\textrm{State}(m) \textrm{ is the successor of State}(n)\textrm{ in } M \textrm{ according to State}(n) \textrm{ and Cont}(n) $$
+	\item[$\textrm{Succ-Pos}(n, m)$:]
+$$\textrm{Comp}(\textrm{Bin}(m), 2) \textrm{ is the successor of }\textrm{Comp}(\textrm{Bin}(n), 2)\textrm{ in } M \textrm{ according to State}(n) \textrm{ and Cont}(n) $$
+	\item[$\textrm{Succ-Cells}(n, m)$:]
+$$\textrm{Comp}(\textrm{Bin}(m), 1) \textrm{ is the successor of }\textrm{Comp}(\textrm{Bin}(m), 1)\textrm{ in } M \textrm{ according to State}(n) \textrm{ and Cont}(n) $$
+\end{description}
+
+The third one requires some careful examinations, and the ``useful'' length of them may not be the same. Then we can derive \textrm{NEXT} as:
+
+$$\textrm{NEXT}(n, m) = \textrm{Succ-State}(n, m) \wedge \textrm{Succ-Pos}(n, m) \wedge \textrm{Succ-Cells}(n, m)$$
+
+\subsection*{(g)}
+Define $\textrm{Enc}(s)$ as:
+$$\textrm{Enc}(s) = \prod_{i=1}^{l}p_i^{s_i} $$
+
+Then it's convenient to derive that:
+$$\textrm{VALID}_M(m, t) = \textrm{NEXT}(\textrm{Enc}(\textrm{BR}(x_1)), \textrm{Enc}(\textrm{BR}(x_2))) \wedge \cdots \wedge \textrm{NEXT}(\textrm{Enc}(\textrm{BR}(x_{t-1})), \textrm{Enc}(\textrm{BR}(x_t))) $$
+
+\subsection*{(h)}
+$$\textrm{HALT}_{M,x}(t) = \exists m, \textrm{VALID}_M(m, t) \wedge \textrm{INIT}_{M, x}(x_1)$$
+
+While in which $x_1$ is the first element of $m$(according to the convention in \textbf{(g)}).
+
+\subsection*{(i)}
+From the construction below, and with the help of computable $\textrm{TRUE-EXP}$, one can construct a Turing Machine $H$ to determine whether a TM $M$ terminates given input $x$:
+
+$$H(M, x) = \textrm{TRUE-EXP}\left(\exists m, \textrm{HALT}_{M, x}(t)\right) $$
+
+Design another TM $T(P)$ as:
+\begin{enumerate}
+\item while(1); if $H(P, P) = 1$.
+\item return 0; if $H(P, P) = 0$.
+\end{enumerate}
+
+Run $H(T,T)$, $H(T, T) = 1 \Longrightarrow H(T, T) = 0, H(T, T) = 0 \Longrightarrow H(T, T) = 1$, which leads to contradiction. 
+\section*{Problem 1.15}
+\subsection*{(a)}
+To show that choosing a different base of representation will make no difference to the class $\textbf{P}$, we need to do Karp-reduction from $L_S^b$ to $L_S^2$, and from $L_S^2$ to $L_S^b$.
+
+\begin{description}
+\item[$L_S^b \Longrightarrow L_S^2:$]
+
+$\llcorner n \lrcorner_b$ can be transformed to $\llcorner n \lrcorner_2$ by Horner's method, which could be described as:
+$$\llcorner n \lrcorner_2 = ((n_k \times b + n_{k-1})\times b + \cdots)\times b + n_0$$
+
+In which $k = O(\log_b(n))$, this algorithms takes at most $k$ multiplication and at most $k$ addition, both requires at most $O(\log_2(b)\times \log_2(n))$ time, the total time complexity is $O(\log_2(n)^2)$ which is a polynomial of input length $\log_2(n)$.
+\item[$L_S^2 \Longrightarrow L_S^b:$]
+
+$\llcorner n \lrcorner_2$ can be transformed to $\llcorner n \lrcorner_b$ by iteratively divide $\llcorner n \lrcorner_2$ by $\llcorner b \lrcorner_2$, and records the remainder one by one.
+The total time complexity is $\log_b(n) \times \log_2(n)\ times \log_2(b) = O(\log_2(n)^2)$, which is also a polynomial of input length $\log_2(n)$.
+\end{description}
+
+Thus we derive $L_S^b\in \mathbf{P}$ iff $L_S^2\in \mathbf{P}$.
+\subsection*{(b)}
+We need to enumerate every number in $(l, k)$ to see whether it divides $n$, however, each check takes $O(n)$ time. If $x\in(l, k)$ divides $n$, we need to check whether it is a prime, which requires an enumeration over $(1, n)$ and in each round we need $O(n)$ to calculate the remainder.
+
+Overall, the time complexity is $O((k - l) \times n \times n \times n) = O((k-l)n^3)$, which is a polynomial of input size $n + k + l$.
+
+The main difference between unary representation and other representations is that in other presentations, we are required to use $0, 1, p-1$ given the base $p$ while in unary presentation, we are required to use $1$ other than $0$, since $0$ can make nothing.
+
+\section*{Acknowledgement}
+Thanks Tianyao Chen for his creative idea on 1.6.
+\end{document}
